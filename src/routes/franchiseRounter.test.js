@@ -8,7 +8,6 @@ let testAdminID;
 
 let testDiner = { name: "pizza diner", email: "reg@test.com", password: "b" };
 let testDinerAuthToken;
-let testDinerID;
 
 function randomName() {
   return Math.random().toString(36).substring(2, 12);
@@ -55,7 +54,6 @@ beforeAll(async () => {
   const loginRes2 = await request(app).put("/api/auth").send(testDiner);
   expect(loginRes2.status).toBe(200);
   testDinerAuthToken = loginRes2.body.token;
-  testDinerID = loginRes2.body.user.id;
   expectValidJwt(testDinerAuthToken);
 });
 
