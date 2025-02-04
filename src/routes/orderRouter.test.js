@@ -4,7 +4,7 @@ const { Role, DB } = require("../database/database.js");
 
 let testAdmin = { name: "pizza admin", email: "reg@test.com", password: "a" };
 let testAdminAuthToken;
-let testAdminID;
+//let testAdminID
 
 let testDiner = { name: "pizza diner", email: "reg@test.com", password: "b" };
 let testDinerAuthToken;
@@ -46,7 +46,7 @@ beforeAll(async () => {
   const loginRes = await request(app).put("/api/auth").send(testAdmin);
   expect(loginRes.status).toBe(200);
   testAdminAuthToken = loginRes.body.token;
-  testAdminID = loginRes.body.user.id;
+  //testAdminID = loginRes.body.user.id;
   expectValidJwt(testAdminAuthToken);
 
   //login diner
