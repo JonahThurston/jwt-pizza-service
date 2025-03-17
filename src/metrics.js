@@ -30,7 +30,7 @@ function trackEndpointUsage(endpoint) {
 
 // This will periodically send metrics to Grafana
 setInterval(() => {
-  // send acrued request metrics
+  // // send acrued request metrics
   Object.keys(requests).forEach((endpoint) => {
     sendMetricToGrafana(
       "requests",
@@ -41,7 +41,7 @@ setInterval(() => {
     );
   });
 
-  // send current system usage
+  // // send current system usage
   sendMetricToGrafana("CPU usage", getCpuUsagePercentage(), {}, "gauge", "%");
   sendMetricToGrafana(
     "Memory usage",
@@ -52,8 +52,15 @@ setInterval(() => {
   );
 }, 10000);
 
-function sendMetricToGrafana(metricName, metricValue, attributes, type, unit) {
-  attributes = { ...attributes, source: source };
+function sendMetricToGrafana(
+  metricName,
+  metricValue,
+  attributesToAdd,
+  type,
+  unit
+) {
+  attributesToAdd = { ...attributesToAdd, source: source };
+  // console.log(attributesToAdd);
 
   const metric = {
     resourceMetrics: [
@@ -67,7 +74,7 @@ function sendMetricToGrafana(metricName, metricValue, attributes, type, unit) {
                 [type]: {
                   dataPoints: [
                     {
-                      asInt: metricValue,
+                      asInt: parseInt(metricValue),
                       timeUnixNano: Date.now() * 1000000,
                       attributes: [],
                     },
@@ -81,13 +88,22 @@ function sendMetricToGrafana(metricName, metricValue, attributes, type, unit) {
     ],
   };
 
-  Object.keys(attributes).forEach((key) => {
-    metric.resourceMetrics[0].scopeMetrics[0].metrics[0].sum.dataPoints[0].attributes.push(
-      {
+  Object.keys(attributesToAdd).forEach((key) => {
+    // Make sure the type exists before trying to access the dataPoints
+    if (
+      metric.resourceMetrics[0].scopeMetrics[0].metrics[0][type] &&
+      metric.resourceMetrics[0].scopeMetrics[0].metrics[0][type].dataPoints
+    ) {
+      // console.log(
+      //   "pushing 1 attribute: key: " + key + " value: " + attributesToAdd[key]
+      // );
+      metric.resourceMetrics[0].scopeMetrics[0].metrics[0][
+        type
+      ].dataPoints[0].attributes.push({
         key: key,
-        value: { stringValue: attributes[key] },
-      }
-    );
+        value: { stringValue: attributesToAdd[key] },
+      });
+    }
   });
 
   if (type === "sum") {
@@ -108,7 +124,9 @@ function sendMetricToGrafana(metricName, metricValue, attributes, type, unit) {
     },
   })
     .then((response) => {
+      // console.log(JSON.stringify(metric));
       if (!response.ok) {
+        // console.log(response);
         console.error("Failed to push metrics data to Grafana");
       } else {
         console.log(`Pushed ${metricName}`);
