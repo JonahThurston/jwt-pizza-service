@@ -35,7 +35,7 @@ apiRouter.use("/docs", (req, res) => {
   });
 });
 
-app.get("/", (req, res) => {
+app.get("/", metrics.trackEndpointUsage("get"), (req, res) => {
   res.json({
     message: "welcome to JWT Pizza",
     version: version.version,

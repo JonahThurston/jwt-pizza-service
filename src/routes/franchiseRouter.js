@@ -2,6 +2,7 @@ const express = require("express");
 const { DB, Role } = require("../database/database.js");
 const { authRouter } = require("./authRouter.js");
 const { StatusCodeError, asyncHandler } = require("../endpointHelper.js");
+const metrics = require("../metrics.js");
 
 const franchiseRouter = express.Router();
 
@@ -76,6 +77,7 @@ franchiseRouter.endpoints = [
 // getFranchises
 franchiseRouter.get(
   "/",
+  metrics.trackEndpointUsage("get"),
   asyncHandler(async (req, res) => {
     res.json(await DB.getFranchises(req.user));
   })
@@ -84,6 +86,7 @@ franchiseRouter.get(
 // getUserFranchises
 franchiseRouter.get(
   "/:userId",
+  metrics.trackEndpointUsage("get"),
   authRouter.authenticateToken,
   asyncHandler(async (req, res) => {
     let result = [];
@@ -99,6 +102,7 @@ franchiseRouter.get(
 // createFranchise
 franchiseRouter.post(
   "/",
+  metrics.trackEndpointUsage("post"),
   authRouter.authenticateToken,
   asyncHandler(async (req, res) => {
     if (!req.user.isRole(Role.Admin)) {
@@ -113,6 +117,7 @@ franchiseRouter.post(
 // deleteFranchise
 franchiseRouter.delete(
   "/:franchiseId",
+  metrics.trackEndpointUsage("delete"),
   asyncHandler(async (req, res) => {
     if (!req.user.isRole(Role.Admin)) {
       throw new StatusCodeError("unable to delete a franchise", 403);
@@ -127,6 +132,7 @@ franchiseRouter.delete(
 // createStore
 franchiseRouter.post(
   "/:franchiseId/store",
+  metrics.trackEndpointUsage("post"),
   authRouter.authenticateToken,
   asyncHandler(async (req, res) => {
     const franchiseId = Number(req.params.franchiseId);
@@ -146,6 +152,7 @@ franchiseRouter.post(
 // deleteStore
 franchiseRouter.delete(
   "/:franchiseId/store/:storeId",
+  metrics.trackEndpointUsage("delete"),
   authRouter.authenticateToken,
   asyncHandler(async (req, res) => {
     const franchiseId = Number(req.params.franchiseId);
