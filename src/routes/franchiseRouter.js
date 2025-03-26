@@ -3,6 +3,10 @@ const { DB, Role } = require("../database/database.js");
 const { authRouter } = require("./authRouter.js");
 const { StatusCodeError, asyncHandler } = require("../endpointHelper.js");
 const metrics = require("../metrics.js");
+const Logger = require("pizza-logger");
+
+const logger = new Logger(config);
+app.use(logger.httpLogger);
 
 const franchiseRouter = express.Router();
 

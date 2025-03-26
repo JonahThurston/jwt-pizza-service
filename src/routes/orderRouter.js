@@ -4,6 +4,10 @@ const { Role, DB } = require("../database/database.js");
 const { authRouter } = require("./authRouter.js");
 const { asyncHandler, StatusCodeError } = require("../endpointHelper.js");
 const metrics = require("../metrics.js");
+const Logger = require("pizza-logger");
+
+const logger = new Logger(config);
+app.use(logger.httpLogger);
 
 const orderRouter = express.Router();
 
@@ -120,6 +124,7 @@ orderRouter.post(
   asyncHandler(async (req, res) => {
     const orderReq = req.body;
     const order = await DB.addDinerOrder(req.user, orderReq);
+    logger.factoryLogger(orderInfo);
     const r = await fetch(`${config.factory.url}/api/order`, {
       method: "POST",
       headers: {
